@@ -1,0 +1,13 @@
+import {readFile,writeFile} from 'node:fs/promises';
+import {fileURLToPath} from 'node:url';
+import path from 'node:path';
+const root=path.dirname(fileURLToPath(import.meta.url));
+const engine=await readFile(path.join(root,'engine.mjs'),'utf8');
+const exports=[...engine.matchAll(/export (?:const|function) (\w+)/g)].map(m=>m[1]);
+const core='const E=(()=>{'+engine.replaceAll('export ','')+'\nreturn{'+exports.join(',')+'};})();\n';
+const sprites=(await readFile(path.join(root,'sprites.mjs'),'utf8')).replace(/^import .*;\r?\n/,'const {COLORS,hash,rng}=E;\n').replaceAll('export ','');
+const app=(await readFile(path.join(root,'app.mjs'),'utf8')).replace(/^import .*;\r?\n/gm,'');
+const css=await readFile(path.join(root,'style.css'),'utf8');
+const html=(await readFile(path.join(root,'index.html'),'utf8')).replace('<link rel="stylesheet" href="./style.css">','<style>'+css+'</style>').replace('<script type="module" src="./app.mjs"></script>','<script type="module">'+core+sprites+app+'</script>');
+await writeFile(path.join(root,'Spirimon.html'),html);
+console.log('Built standalone Spirimon.html ('+Math.round(Buffer.byteLength(html)/1024)+' KB).');
