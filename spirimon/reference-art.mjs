@@ -1,0 +1,8 @@
+export const REFERENCE_SPIRITS=[
+{slug:'rime-leopard',base:'Beast',alter:'Elemental',forms:['Rimekit','Rimeclaw','Rimecrown'],description:'A snow leopard whose spotted fur shelters ridges of living blue crystal. Its long tail curls around its sealer when resting.'},
+{slug:'lava-tortoise',base:'Beast',alter:'Elemental',forms:['Cinderback','Magmarmor','Calderadon'],description:'A tortoise with a volcanic shell split by glowing magma seams. Dark stone spines store heat between eruptions.'},
+{slug:'abyss-octopus',base:'Beast',alter:'Aberration',forms:['Inkling','Abysscoil','Crimson Oracle'],description:'A crimson octopus with watchful eyes scattered across its mantle and curling, sucker-lined arms.'},
+{slug:'thorn-maw',base:'Plant',alter:'Beast',forms:['Snaproot','Briarmaw','Thorn Tyrant'],description:'A carnivorous flytrap with a muscular vine body, thorned tendrils, claw-like roots, and a petal-lined maw.'},
+{slug:'moss-stag',base:'Beast',alter:'Plant',forms:['Mossfawn','Briarhart','Grove Sovereign'],description:'A powerful shaggy stag crowned by branching antlers, living moss, and weathered stones. Forest shoots follow its footsteps.'},
+{slug:'reef-turtle',base:'Beast',alter:'Construct',forms:['Reefling','Coralguard','Atoll Warden'],description:'A sea turtle carrying a rugged armored reef of plated stone, branching coral, and barnacles. Its patterned flippers sweep through shallow water.'}
+];

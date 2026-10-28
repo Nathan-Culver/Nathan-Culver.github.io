@@ -12,12 +12,17 @@ Saves and the species library live in this browser's IndexedDB. Hosted, local-se
 ## Controls
 WASD / arrows: move. E / Enter: interact. B: bag.
 1: explore. 2: tattoos. 3: atlas. 4: journal.
-Touch/click movement controls are on the map.
+Hold Shift to run. Touch/click movement controls are on the map. Tile movement and camera scrolling are smoothly interpolated; the world fills the window without letterboxing.
 
-On phones, Spirimon automatically uses a landscape emulator layout with translucent D-pad, A/B, Menu and Bag buttons. Hold a direction to keep walking. A interacts; B opens the bag. Rotate the phone sideways; fullscreen and orientation locking are offered where the browser supports them. Settings can force emulator or desktop layout. Battle and collection menus remain directly touchable. Mobile saves stay on the phone; export/import moves saves between devices. AI generation targets the Windows companion, not phone hardware.
+On phones, Spirimon automatically uses a landscape emulator layout with translucent D-pad, A/B, Menu and Bag buttons. Hold a direction to keep walking. A interacts; holding B runs. The BAG button opens supplies. MENU opens Spirits, Map, Journal, Sealer, Options and Save. Rotate the phone sideways; fullscreen and orientation locking are offered where the browser supports them. Settings can force emulator or desktop layout. Battle and collection menus remain directly touchable. Mobile saves stay on the phone; export/import moves saves between devices. AI generation targets the Windows companion, not phone hardware.
 
 ## The first journey
 Choose a base type and one of three starter lineages. Keeper Iona restores spirits; Tavi sells supplies; Rowan offers rank-scaled battles and reserve-spirit trades; Scholar Elin rewards discoveries and exploration. Roaming spirits can be approached peacefully, offered food, or challenged. Hidden encounters occur in tall grass.
+
+## Art direction and animations
+A bright handheld-era presentation with original feudal Japanese/Chinese-inspired pixel villages: swept tiled roofs, timber halls, lanterns, shrine gates, bamboo, cherry trees and robed sealers. Exploration fills every screen shape. Combat animates physical lunges and impacts, spiritual projectiles, healing and wards; reduced-motion preferences are respected.
+
+Six showcase spirit portraits come from the reference images supplied by the user. Their originals are preserved; delivery copies are resized/re-encoded for the browser. These reference portraits are shared across the three forms in this alpha, with stage scaling. Local-AI lineages generate three distinct sprites. Procedural fallback lineages remain visibly simpler. Physical PPI metadata does not determine screen detail: effective sprite pixel dimensions and display scale do.
 
 ## Implemented systems
 - Seeded, expanding world with five biomes, persistent regions, towns, terrain collision, trails and fixed regional danger.

@@ -54,13 +54,13 @@ export function resolveTempoRound(a,asp,b,bsp,aChoice,bChoice,credits={a:0,b:0},
   for(let index=0;index<1+bonus+borrow;index++)entries.push({who,u,us,v,vs,c,index,borrowed:index>=1+bonus,priority:priority(u,us,c.move,c.style)-index*18});
  }
  entries.sort((x,y)=>y.priority-x.priority||(x.who==="a"?-1:1));
- const nextCredits={a:0,b:0},actions={a:0,b:0},log=[];
+ const nextCredits={a:0,b:0},actions={a:0,b:0},log=[],events=[];
  for(const e of entries){if(e.u.hp<=0||e.v.hp<=0)continue;
   const pp=e.u.pp??stats(e.u,e.us).pp;
   if(e.index>0&&pp<actionCost(e.c.move,e.index)){log.push(e.us.forms[e.u.appearance]+" cannot fund another action with its remaining PP.");continue;}
-  log.push(...executeAction(e.u,e.us,e.v,e.vs,e.c.move,e.c.style,e.c.commit,r,1+e.index*.5));actions[e.who]++;
+  log.push(...executeAction(e.u,e.us,e.v,e.vs,e.c.move,e.c.style,e.c.commit,r,1+e.index*.5));actions[e.who]++;events.push({side:e.who,move:{...e.c.move},style:e.c.style,aHP:a.hp,bHP:b.hp,aPP:a.pp,bPP:b.pp});
   if(e.borrowed)nextCredits[e.who==="a"?"b":"a"]++;
  }
  for(const[u,sp]of[[a,asp],[b,bsp]])if(u.hp>0&&u.status==="poison"){u.hp=Math.max(0,u.hp-Math.max(1,Math.floor(stats(u,sp).hp*.06)));log.push(sp.forms[u.appearance]+" suffers poison damage.");}
- return{log,nextCredits,actions};
+ return{log,nextCredits,actions,events};
 }
