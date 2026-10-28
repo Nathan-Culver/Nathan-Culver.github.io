@@ -62,7 +62,7 @@ export function drawSpirit(ctx,sp,form,x,y,size=96,flip=false){
  ctx.restore();
 }
 export function renderSpiritCanvases(root=document){root.querySelectorAll('canvas[data-species]').forEach(c=>{const sp=globalThis.spirimonSpecies?.[c.dataset.species];if(!sp)return;const ctx=c.getContext('2d');ctx.clearRect(0,0,c.width,c.height);drawSpirit(ctx,sp,Number(c.dataset.form)||0,0,0,c.width);});}
-export function drawPerson(ctx,x,y,role='player',tick=0,face='down',moving=false){
+function paintPerson(ctx,x,y,role='player',tick=0,face='down',moving=false){
  ctx.save();ctx.translate(Math.round(x),Math.round(y));const q=(a,b,w,h,col)=>{ctx.fillStyle=col;ctx.fillRect(a,b,w,h);};
  const step=moving?Math.round(Math.sin(tick/1000*Math.PI*4)*2):0;
  ellipse(ctx,16,29,9,3,'#355f4455');
@@ -77,17 +77,36 @@ export function drawPerson(ctx,x,y,role='player',tick=0,face='down',moving=false
  if(role==='keeper'){q(9,3,15,4,'#ded9b4');q(7,7,5,6,'#d8d1b1');}
  ctx.restore();
 }
-export function drawTile(ctx,type,x,y,seed,biome){const r=rng(seed);const q=(a,b,w,h,col)=>{ctx.fillStyle=col;ctx.fillRect(x+a,y+b,w,h);};const grass=biome==='ash'?'#b1ac73':biome==='fen'?'#7ca89a':biome==='highland'?'#abc77a':'#8bbd64';q(0,0,32,32,grass);for(let i=0;i<8;i++)q(Math.floor(r()*30),Math.floor(r()*30),2,1,r()<.5?'#a4cc76':'#75a756');
-if(type==='path'){q(0,0,32,32,'#d7c391');q(0,1,32,2,'#e8d6a7');for(let i=0;i<7;i++)q(Math.floor(r()*30),Math.floor(r()*30),2+r()*3,1,'#b9ab85');}
-if(type==='water'){q(0,0,32,32,'#4b9cba');q(0,4,32,2,'#6bbbd0');q(7,17,17,2,'#a1deed');q(2,26,13,1,'#639d94');q(21,9,9,1,'#9fbfac');}
-if(type==='grass'){for(let i=0;i<6;i++){const a=2+Math.floor(r()*27),b=4+Math.floor(r()*23);q(a,b,2,7,'#3f6e3e');q(a-2,b+1,2,3,'#83a35b');q(a+2,b+2,2,4,'#91ab66');}}
-if(type==='flower'){for(let i=0;i<3;i++){const a=3+Math.floor(r()*25),b=3+Math.floor(r()*23);q(a,b+3,1,5,'#3c724b');q(a-2,b,5,3,i%2?'#ded092':'#c6abaf');q(a,b+1,1,1,'#f2e3a9');}}
-if(type==='tree'){q(12,17,8,15,'#594d36');q(15,18,3,13,'#756143');ellipse(ctx,x+16,y+27,14,4,'#426940');ellipse(ctx,x+16,y+14,16,14,'#316f43');ellipse(ctx,x+14,y+10,13,11,'#4c9550');ellipse(ctx,x+11,y+7,9,6,'#78b958');q(8,7,6,2,'#add776');q(21,18,6,2,'#244d39');}
-if(type==='tree'&&seed%5===0){ellipse(ctx,x+16,y+14,16,13,'#c9798f');ellipse(ctx,x+14,y+10,14,10,'#efa3b1');ellipse(ctx,x+11,y+7,9,6,'#ffd0d2');q(6,6,4,2,'#ffe4d7');q(22,14,4,2,'#dc8b9d');}if(type==='tree'&&seed%7===0){q(0,0,32,29,grass);for(let j=0;j<3;j++){q(6+j*8,2+j*3,3,29-j*3,'#3e8b4b');for(let k=0;k<4;k++){q(5+j*8,5+k*7,5,1,'#a1c875');poly(ctx,[[x+6+j*8,y+8+k*6],[x+j*8,y+4+k*6],[x+4+j*8,y+12+k*6]],'#4c9951');}}}if(type==='rock'){ellipse(ctx,x+17,y+24,13,6,'#476648');poly(ctx,[[x+3,y+24],[x+7,y+12],[x+17,y+8],[x+27,y+15],[x+29,y+25]],'#7b8873');poly(ctx,[[x+7,y+12],[x+17,y+8],[x+23,y+14],[x+14,y+18],[x+5,y+22]],'#9ba28a');q(17,21,9,3,'#64745f');}
-if(type==='well'){ellipse(ctx,x+16,y+27,15,4,'#4a6748');q(4,12,24,14,'#8b927d');q(7,14,18,7,'#365b58');q(2,10,28,5,'#b7b399');q(5,22,22,5,'#a6a68d');q(12,6,8,7,'#738b80');}
-if(type==='guild'||type==='house'){q(0,0,32,32,'#7d7156');q(0,3,32,2,'#b7a27b');q(0,17,32,1,'#a3906c');q(0,30,32,2,'#544d3c');q(1,0,2,32,'#665a43');}
+export function drawTile(ctx,type,x,y,seed,biome){
+ const key='tile-'+type+'-'+biome+'-'+seed%16;let tile=cache.get(key);
+ if(!tile){tile=document.createElement('canvas');tile.width=tile.height=32;const c=tile.getContext('2d'),r=rng(seed%16);const q=(a,b,w,h,col)=>{c.fillStyle=col;c.fillRect(a,b,w,h);};
+ const greens=biome==='ash'?['#a3b05b','#b8c36c','#8b9d48']:biome==='fen'?['#59a476','#75b88a','#41885e']:biome==='highland'?['#83bd50','#9bce66','#6ca13e']:['#67b64b','#7fc45b','#55a13c'];
+ q(0,0,32,32,greens[0]);for(let n=0;n<40;n++){const xx=Math.floor(r()*16)*2,yy=Math.floor(r()*16)*2;q(xx,yy,2,1,n%2?greens[1]:greens[2]);}
+ if(type==='forest'){q(0,0,32,32,greens[2]);for(let n=0;n<20;n++)q(Math.floor(r()*16)*2,Math.floor(r()*16)*2,2,2,greens[0]);}
+ if(type==='path'||type==='stairs'){q(0,0,32,32,'#d5bb85');for(let n=0;n<35;n++)q(Math.floor(r()*16)*2,Math.floor(r()*16)*2,2,1,n%3?'#dfc994':'#c1a671');if(type==='stairs')for(let yy=1;yy<32;yy+=6){q(0,yy,32,2,'#8b765d');q(0,yy+2,32,2,'#e0d2aa');}}
+ if(type==='grass'){for(let yy=4;yy<32;yy+=9)for(let xx=-2;xx<32;xx+=8){const dx=Math.floor(r()*3);poly(c,[[xx+dx,yy+7],[xx+dx-2,yy],[xx+dx+3,yy+4],[xx+dx+6,yy-3],[xx+dx+6,yy+7]],'#32732e');poly(c,[[xx+dx+1,yy+6],[xx+dx,yy+1],[xx+dx+4,yy+5],[xx+dx+5,yy],[xx+dx+5,yy+6]],'#75b13d');q(xx+dx+3,yy+1,1,5,'#a6ce60');}}
+ if(type==='flower'){for(let n=0;n<5;n++){const xx=3+Math.floor(r()*12)*2,yy=3+Math.floor(r()*12)*2;q(xx,yy,2,7,'#3c863e');q(xx-2,yy,6,2,n%2?'#fff1c3':'#efb5cc');q(xx,yy-2,2,6,n%2?'#fff1c3':'#efb5cc');q(xx,yy,2,2,'#dcaa4e');}}
+ if(type==='water'){q(0,0,32,32,'#499db9');for(let yy=0;yy<32;yy+=8){q(0,yy,32,3,'#59abc2');q(Math.floor(r()*16),yy+3,12,1,'#8cd6de');q(Math.floor(r()*16)+2,yy+5,9,1,'#378da8');}}
+ if(type==='cliff'){q(0,0,32,32,'#98735b');q(0,0,32,3,greens[2]);q(0,3,32,4,greens[0]);q(0,7,32,2,'#d5b17f');q(0,9,32,3,'#6e5545');for(let yy=12;yy<32;yy+=7){q(0,yy,32,2,'#b58e69');for(let n=0;n<5;n++){const xx=Math.floor(r()*16)*2;q(xx,yy+2,2,5,'#725340');q(xx+2,yy+3,3,3,'#a78162');}}q(0,29,32,3,'#644f3f');}
+ if(type==='rock'){ellipse(c,16,25,14,5,'#467439');poly(c,[[3,25],[5,14],[12,9],[23,10],[29,18],[28,26]],'#5d6c61');poly(c,[[6,14],[14,10],[22,12],[24,18],[14,20],[4,23]],'#9aa18a');q(12,13,8,2,'#c0bca0');q(21,22,6,3,'#74806e');}
+ if(type==='well'){ellipse(c,16,27,14,4,'#4f773e');q(5,10,22,17,'#8b9982');q(8,12,16,8,'#376e7e');q(3,8,26,4,'#c5c5a3');q(4,22,24,5,'#b3ba97');q(12,4,8,5,'#a9b49b');}
+ if(type==='guild'||type==='house')q(0,0,32,32,'#b2a27b');
+ cache.set(key,tile);}
+ ctx.imageSmoothingEnabled=false;ctx.drawImage(tile,Math.round(x),Math.round(y));
 }
-
+export function drawTree(ctx,x,y,seed,biome='forest'){
+ const variant=seed%12,key='tree-detail-'+variant+'-'+biome;let tree=cache.get(key);
+ if(!tree){tree=document.createElement('canvas');tree.width=64;tree.height=80;const c=tree.getContext('2d'),r=rng(variant);const q=(a,b,w,h,col)=>{c.fillStyle=col;c.fillRect(a,b,w,h);};
+ ellipse(c,32,74,25,5,'#244f354d');q(25,43,15,29,'#514a32');q(28,43,5,28,'#91764a');q(34,46,4,26,'#6c5938');q(20,69,11,5,'#665636');q(36,68,10,6,'#665636');q(27,70,3,5,'#b2965d');
+ const palette=variant===2?['#734b5c','#a9617e','#c77b96','#e19ab3','#f4b6c8','#ffd6dc']:biome==='ash'?['#4f5832','#626e3a','#7f8e42','#99a451','#b3ba64','#c7ca79']:['#234d2c','#316638','#477e3c','#5c9745','#78af4e','#95c45d'];
+ const lobes=[[18,26,17,20],[44,27,18,20],[31,16,21,15],[31,37,25,19]];
+ const inside=(xx,yy)=>lobes.some(([cx,cy,rx,ry])=>((xx-cx)/rx)**2+((yy-cy)/ry)**2<1);
+ for(let yy=0;yy<61;yy++)for(let xx=0;xx<64;xx++){if(!inside(xx,yy))continue;let light=(1-yy/65)*3+(1-xx/70)*1.5;const cluster=hash(Math.floor(xx/3),Math.floor(yy/3),variant)%5;light+=(cluster-2)*.45;if(!inside(xx-1,yy)||!inside(xx+1,yy)||!inside(xx,yy+1))light=0;const color=palette[Math.max(0,Math.min(5,Math.floor(light)))];q(xx,yy,1,1,color);}
+ for(let n=0;n<20;n++){const xx=10+Math.floor(r()*42),yy=8+Math.floor(r()*36);if(inside(xx,yy))q(xx,yy,2,1,palette[3+Math.floor(r()*3)]);}
+ if(variant===7){c.clearRect(0,0,64,67);for(let n=0;n<5;n++){const xx=10+n*10,top=5+(n%2)*8;q(xx,top,4,66-top,'#3c7a39');q(xx+1,top,1,66-top,'#a0c766');for(let yy=top+4;yy<64;yy+=10){q(xx-1,yy,6,2,'#315e30');poly(c,[[xx,yy],[xx-12,yy-7],[xx-5,yy+2]],'#4b9346');poly(c,[[xx+4,yy+2],[xx+13,yy-6],[xx+9,yy+5]],'#6aaa4c');}}}
+ cache.set(key,tree);}
+ ctx.drawImage(tree,Math.round(x)-16,Math.round(y)-48);
+}
 export function drawBuilding(ctx,x,y,guild=false){
  const q=(a,b,w,h,col)=>{ctx.fillStyle=col;ctx.fillRect(Math.round(x+a),Math.round(y+b),w,h);};
  const w=guild?160:128,roof=guild?'#476f77':'#a84c3d',roofLight=guild?'#739397':'#cf7050',timber='#633e2e';
@@ -109,3 +128,5 @@ export function drawTownDecor(ctx,x,y){
  // Vermilion shrine gate, with upturned crossbeam ends.
  q(2,6,7,49,'#8b3c2c');q(54,6,7,49,'#8b3c2c');q(4,7,3,46,'#d36d45');q(56,7,3,46,'#d36d45');q(-4,6,72,6,'#b74b32');q(6,21,51,5,'#b74b32');q(-8,1,80,6,'#3f4d43');q(-10,-2,8,5,'#3f4d43');q(66,-2,8,5,'#3f4d43');q(29,11,6,10,'#e1c486');q(0,54,12,4,'#797d68');q(52,54,12,4,'#797d68');
 }
+
+export function drawPerson(ctx,x,y,role='player',tick=0,face='down',moving=false){const frame=moving?Math.floor(tick/250)%4:0,key='person-'+role+'-'+face+'-'+frame;let p=cache.get(key);if(!p){p=document.createElement('canvas');p.width=32;p.height=36;paintPerson(p.getContext('2d'),0,0,role,[0,125,0,375][frame],face,moving);cache.set(key,p);}ctx.imageSmoothingEnabled=false;ctx.drawImage(p,Math.round(x)-5,Math.round(y)-15,42,47);}
