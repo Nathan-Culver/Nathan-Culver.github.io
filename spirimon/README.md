@@ -73,6 +73,8 @@ Official adapter references:
 - https://docs.ollama.com/api/generate
 - https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/API
 
+Append ?playtest to the hosted URL for a separate browser playtest save and species library. It never reads or writes the regular game's IndexedDB database.
+
 ## Development
 npm test
 node build.mjs

@@ -50,7 +50,7 @@ if(sp.domains.length){ellipse(p,51,13,5,5,'#d7bb75');rect(50,9,2,8,'#fff1c0');re
 cache.set(key,c);return c;}
 export function drawSpirit(ctx,sp,form,x,y,size=96,flip=false){
  ctx.save();ctx.imageSmoothingEnabled=false;let source=spiritSprite(sp,form),reference=false;
- const url=sp.portrait&&size>=80?sp.portrait:sp.sprites?.[form];
+ const url=sp.portrait?sp.portrait:sp.sprites?.[form];
  if(url&&(/^data:image\/(png|webp);base64,/.test(url)||/^\.\/assets\/[a-z-]+\.webp$/.test(url))){
   if(!images.has(url)){const img=new Image();img.onload=()=>globalThis.spirimonArtLoaded?.();img.src=url;images.set(url,img);}
   const img=images.get(url);if(img.complete&&img.naturalWidth){source=img;reference=!!sp.portrait;}
